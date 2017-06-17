@@ -25,8 +25,8 @@ int main(){
 	vector<Usuario*>usuarios;
 	vector<Carro*>carros;
   //prueba
-	
 	cargarTodo(usuarios,carros);
+	
 	/*Usuario* prueba = new Administrador("juan","hola","jefe","2234");
 	usuarios.push_back(prueba);*/
 	while(vivo){
@@ -128,10 +128,9 @@ int main(){
     	break;
     }
     case 3:{
-    	if(usuarios.size()>0){
-    		guardarUsuarios(usuarios);
-    	}
-    		guardarCarros(carros);
+    	guardarUsuarios(usuarios);
+    	
+    	guardarCarros(carros);
     	
     	break;
 
@@ -319,10 +318,10 @@ void cargarTodo(vector<Usuario*>& usuarios,vector<Carro*>& carros){
 			Usuario* tem = new Administrador(nombre,password,puesto,numSS);
 			usuarios.push_back(tem);
 
-			/*archivo1>>nombre;
+			archivo1>>nombre;
 			archivo1>>password;
 			archivo1>>puesto;
-			archivo1>>numSS;*/
+			archivo1>>numSS;
 		}
 		archivo1.close();
 	}
@@ -339,13 +338,14 @@ void cargarTodo(vector<Usuario*>& usuarios,vector<Carro*>& carros){
 			Usuario* tem = new Cliente(nombre,password,membresia);
 			usuarios.push_back(tem);
 
-			/*archivo2>>nombre;
+			archivo2>>nombre;
 			archivo2>>password;
-			archivo2>>membresia;*/
+			archivo2>>membresia;
 		}
 		archivo2.close();
 	}
 	if(archivo3.is_open()){
+
 		while(!archivo3.eof()){
 			string placa;
 			string marca;
@@ -362,11 +362,11 @@ void cargarTodo(vector<Usuario*>& usuarios,vector<Carro*>& carros){
 			carros.push_back(temCarro);
 
 			archivo3>>placa;
-			/*archivo3>>marca;
+			archivo3>>marca;
 			archivo3>>modelo;
 			archivo3>>year;
 			archivo3>>precio;
-			archivo3>>placa;*/
+			archivo3>>placa;
 		}
 		archivo3.close();
 	}
