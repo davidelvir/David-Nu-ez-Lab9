@@ -16,6 +16,8 @@ bool menuCliente(vector<Carro*>&);
 void ListarCarros(vector<Carro*>&);
 void ListarCarros2(vector<Carro*>&);
 void guardarUsuarios(vector<Usuario*>&);
+void guardarCarros(vector<Carro*>&);
+void cargarTodo(vector<Usuario*>&,vector<Carro*>&);
 
 int main(){
 
@@ -23,15 +25,17 @@ int main(){
 	vector<Usuario*>usuarios;
 	vector<Carro*>carros;
   //prueba
-	Usuario* prueba = new Administrador("juan","hola","jefe","2234");
-	usuarios.push_back(prueba);
+	
+	cargarTodo(usuarios,carros);
+	/*Usuario* prueba = new Administrador("juan","hola","jefe","2234");
+	usuarios.push_back(prueba);*/
 	while(vivo){
 		int op;
 		cout<<"------Menu------"<<endl;
 		cout<<"1. Crear usuario"<<endl;
 		cout<<"2. Log in"<<endl;
 		cout<<"3. Guardar"<<endl;
-		cout<<"4. Guardar y salir"<<endl;
+		cout<<"4. Salir"<<endl;
 		cout<<"5. Listar"<<endl;
 		cin>>op;
 		switch(op){
@@ -124,11 +128,18 @@ int main(){
     	break;
     }
     case 3:{
-    	guardarUsuarios(usuarios);
+    	if(usuarios.size()>0){
+    		guardarUsuarios(usuarios);
+    	}
+    		guardarCarros(carros);
+    	
     	break;
 
     }
     case 4:{
+    	cout<<"Gracias!!"<<endl;
+    	vivo = false;
+    	break;
 
     }
     case 5:{
@@ -151,8 +162,7 @@ bool menuCliente(vector<Carro*>& carros){
 	int op;
 	cout<<"------Menu Cliente------"<<endl;
 	cout<<"1. Rentar un carro"<<endl;
-	cout<<"2. Guardar factura"<<endl;
-	cout<<"3. Salir"<<endl;
+	cout<<"2. Salir"<<endl;
 	cin>>op;
 	switch(op){
 		case 1:{
@@ -161,18 +171,18 @@ bool menuCliente(vector<Carro*>& carros){
 			ListarCarros2(carros);
 			cin>>rentar;
 			carros[rentar]->Rentar();
+			ofstream archivo;
+			string ruta = "Facturas.txt";
+			archivo.open(ruta.c_str(),ios::app);
+			archivo << "Carro rentado: "<<carros[rentar]->getMarca()<<" "<<carros[rentar]->getModelo()<<" "<<"Precio: "<<carros[rentar]->getPrecio()<<endl;
+			archivo.close();
 			volver = true;
 			break;
 		}
 		case 2:{
-			volver = true;
-			break;
-		}
-		case 3:{
 			volver = false;
 			break;
 		}
-
 	}
 	return volver;
 }
@@ -240,7 +250,7 @@ void ListarCarros2(vector<Carro*>& carros){
 	}else{
 		for (int i = 0; i < carros.size(); ++i)
 		{
-			if(!carros[i]){
+			if(!carros[i]->getRentado()){
 				cout<<"Carro: "<<i<<" ||Marca: "<<carros[i]->getMarca()<<" ||Modelo: "<<carros[i]->getModelo()<<" ||Rentado: "<<carros[i]->getRentado()<<endl;
 			}
 		}
@@ -251,6 +261,8 @@ void guardarUsuarios(vector<Usuario*>& usuarios){
 	ofstream archivo;
 	string rutaAdmin = "Administrador.txt";
 	string rutaCliente = "Cliente.txt";
+	archivo.open(rutaAdmin.c_str());
+	archivo.open(rutaCliente.c_str());
 	for (int i = 0; i < usuarios.size(); ++i)
 	{
 		ofstream archivo;
@@ -258,16 +270,105 @@ void guardarUsuarios(vector<Usuario*>& usuarios){
 		string rutaCliente = "Cliente.txt";
 		if(dynamic_cast<Administrador*>(usuarios[i])){
 			Administrador* tem1 = dynamic_cast<Administrador*>(usuarios[i]);
-			archivo.open(rutaAdmin.c_str());
+			archivo.open(rutaAdmin.c_str(),ios::app);
 			archivo<<usuarios[i]->getNombre()<<" "<<usuarios[i]->getPassword()<<" "<<tem1->getCargo()<<" "<<tem1->getNumSS()<<endl;
-			archivo.close();
+			//archivo.close();
 		}
 		if(dynamic_cast<Cliente*>(usuarios[i])){
 			Cliente* tem2 = dynamic_cast<Cliente*>(usuarios[i]);
-			archivo.open(rutaCliente.c_str());
-			archivo<<usuarios[i]->getNombre()<<" "<<usuarios[i]->getPassword()<<endl;
-			archivo.close();
+			archivo.open(rutaCliente.c_str(),ios::app);
+			archivo<<usuarios[i]->getNombre()<<" "<<usuarios[i]->getPassword()<<" "<<tem2->getMembresia()<<endl;
+			//archivo.close();
 		}
 	}
 	archivo.close();
+}
+void guardarCarros(vector<Carro*>& carros){
+
+	ofstream archivo;
+	string rutaCarro = "Carros.txt";
+	//archivo.open(rutaCarro.c_str());
+	archivo.open(rutaCarro.c_str(),ios::app);
+	for(int i=0;i<carros.size();i++){
+		archivo<<carros[i]->getPlaca()<<" "<<carros[i]->getMarca()<<" "<<carros[i]->getModelo()<<" "<<carros[i]->getYear()<<" "<<carros[i]->getPrecio()<<endl;
+	}
+	archivo.close();
+}
+
+void cargarTodo(vector<Usuario*>& usuarios,vector<Carro*>& carros){
+
+	usuarios.clear();
+	carros.clear();
+
+	ifstream archivo1("Administrador.txt");
+	ifstream archivo2("Cliente.txt");
+	ifstream archivo3("Carros.txt");
+
+	if(archivo1.is_open()){
+		while(!archivo1.eof()){
+			string nombre;
+			string password;
+			string puesto;
+			string numSS;
+
+			archivo1>>nombre;
+			archivo1>>password;
+			archivo1>>puesto;
+			archivo1>>numSS;
+
+			Usuario* tem = new Administrador(nombre,password,puesto,numSS);
+			usuarios.push_back(tem);
+
+			/*archivo1>>nombre;
+			archivo1>>password;
+			archivo1>>puesto;
+			archivo1>>numSS;*/
+		}
+		archivo1.close();
+	}
+	if(archivo2.is_open()){
+		while(!archivo2.eof()){
+			string nombre;
+			string password;
+			string membresia;
+
+			archivo2>>nombre;
+			archivo2>>password;
+			archivo2>>membresia;
+
+			Usuario* tem = new Cliente(nombre,password,membresia);
+			usuarios.push_back(tem);
+
+			/*archivo2>>nombre;
+			archivo2>>password;
+			archivo2>>membresia;*/
+		}
+		archivo2.close();
+	}
+	if(archivo3.is_open()){
+		while(!archivo3.eof()){
+			string placa;
+			string marca;
+			string modelo;
+			int year;
+			double precio;
+			archivo3>>placa;
+			archivo3>>marca;
+			archivo3>>modelo;
+			archivo3>>year;
+			archivo3>>precio;
+
+			Carro* temCarro = new Carro(placa,marca,modelo,year,precio);
+			carros.push_back(temCarro);
+
+			archivo3>>placa;
+			/*archivo3>>marca;
+			archivo3>>modelo;
+			archivo3>>year;
+			archivo3>>precio;
+			archivo3>>placa;*/
+		}
+		archivo3.close();
+	}
+
 }
